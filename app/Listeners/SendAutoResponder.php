@@ -18,8 +18,11 @@ class SendAutoResponder
 	public function handle(MessageWasReceived $event)
 	{
 		$message = $event->message;
-		Mail::send('emails.contact' , ['msg' => $message] , function($m) use ($message) {
+		if (auth()->check()) {
+			$message->email = auth()->user()->email;
+		}
+		/*Mail::send('emails.contact' , ['msg' => $message] , function($m) use ($message) {
 			$m->to($message->email, $message->nombre)->subject('Tu mensaje ha sifo recibo Exitosamente');
-		});
+		});*/
 	}
 }

@@ -27,7 +27,7 @@
 						{{-- {{ $user->roles->pluck('display_name')->implode(' - ') }} --}}
 						@foreach ($user->roles->pluck('display_name') as $nameRol)
 							@switch($nameRol)
-								@case("Administrador del sitio")
+								@case("Administrador")
 									<span class="label label-success"> {{ $nameRol }} </span>
 								@break
 

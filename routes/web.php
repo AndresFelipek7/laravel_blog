@@ -2,10 +2,10 @@
 
 /*Para conocer las consultas hechas en una pagina*/
 
-/*DB::listen(function($query){
+DB::listen(function($query){
 	//Cambiando sql por time nos da los milisegundos de cada consulta
 	echo "<pre>{ $query->sql }</pre>";
-});*/
+});
 
 /*Rutas Generales de otros modulos*/
 

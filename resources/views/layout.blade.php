@@ -65,8 +65,6 @@
 							<a href="/login">Login</a>
 						</li>
 					@else
-						<li><a href="/logout">Cerrar Sesion</a></li>
-						<li><a href="/usuarios/{{ auth()->id() }}/edit">Mi Cuenta</a></li>
 						<li class="dropdown">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ auth()->user()->name }} <b class="caret"></b></a>
 							<ul class="dropdown-menu">
@@ -89,6 +87,6 @@
 		</footer>
 	</div>
 
-	<script src="/js/all.js"></script>
+	<script src="/js/app.js"></script>
 </body>
 </html>

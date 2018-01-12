@@ -10,6 +10,7 @@ use App\Http\Requests;
 use Illuminate\Http\Request;
 use App\Events\MessageWasReceived;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 use App\Http\Requests\CreateMessageRequest;
 use App\User;
 
@@ -30,8 +31,13 @@ class MessagesController extends Controller
 	 */
 	public function index()
 	{
-		//Sacamos todo la informacion de la tabla
-		$messages = Message::with(['user' , 'note' , 'tags'])->get();
+		$key ="messages.page." .request('page',1);
+
+		$messages = Cache::rememberForever($key , function(){
+			return Message::with(['user' , 'note' , 'tags'])
+						->orderBy('created_at', request('sorted'))
+						->Paginate(10);
+		});
 
 		//Redirecionamos
 		return view('messages.index' , compact('messages'));
@@ -62,8 +68,10 @@ class MessagesController extends Controller
 		//Si esta autentificado haz esto
 		if (auth()->check()) {
 			//Con el metodo save asignamos el mensaje ya guardado a la relacion
-			auth()->user()->messages()->save($request->all());
+			auth()->user()->messages()->save($message);
 		}
+
+		Cache::flush();
 
 		//Llamamos al evento que envia el correo
 		event(new MessageWasReceived($message));
@@ -80,7 +88,10 @@ class MessagesController extends Controller
 	 */
 	public function show($id)
 	{
-		$message = Message::findOrFail($id);
+		$message = Cache::rememberForever("messages.{$id}" , function () use ($id){
+			return Message::findOrFail($id);
+		});
+
 
 		//Redireccionamos
 		return view('messages.show' , compact('message'));
@@ -94,7 +105,9 @@ class MessagesController extends Controller
 	 */
 	public function edit($id)
 	{
-		$message = Message::findOrFail($id);
+		$message = Cache::rememberForever("messages.{$id}" , function () use ($id){
+			return Message::findOrFail($id);
+		});
 
 		//Redirecciomaos
 		return view('messages.edit' , compact('message'));
@@ -111,6 +124,8 @@ class MessagesController extends Controller
 	{
 		Message::findOrFail($id)->update($request->all());
 
+		Cache::flush();
+
 		//Redireccionamos
 
 		return redirect()->route('mensaje.index');
@@ -125,6 +140,8 @@ class MessagesController extends Controller
 	public function destroy($id)
 	{
 		Message::findOrFail($id)->delete();
+
+		Cache::flush();
 
 		//Redireccionamos
 

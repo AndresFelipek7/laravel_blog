@@ -54,6 +54,7 @@
 					</td>
 				</tr>
 			@endforeach
+			{!! $messages->appends(request()->query())->links() !!}
 		</tbody>
 	</table>
 @endsection
