@@ -20,12 +20,13 @@
 				<tr>
 					<td>{{ $user->id }}</td>
 					<td>
-						{{ $user->name }}
+						{!! $user->present()->link() !!}
 					</td>
 					<td>{{ $user->email }}</td>
 					<td>
+						{{ $user->present()->roles() }}
 						{{-- {{ $user->roles->pluck('display_name')->implode(' - ') }} --}}
-						@foreach ($user->roles->pluck('display_name') as $nameRol)
+						{{-- @foreach ($user->roles->pluck('display_name') as $nameRol)
 							@switch($nameRol)
 								@case("Administrador")
 									<span class="label label-success"> {{ $nameRol }} </span>
@@ -35,17 +36,17 @@
 									<span class="label label-danger"> {{ $nameRol }} </span>
 								@break
 
-								@case("Moderador de comentarios")
+								@case("Moderador")
 									<span class="label label-info"> {{ $nameRol }} </span>
 								@break
 
 								@default
 									<span>Rol Desconocido</span>
 							@endswitch
-						@endforeach
+						@endforeach --}}
 					</td>
-					<td>{{ $user->note ? $user->note->body : '' }}</td>
-					<td>{{ $user->tags->pluck('name')->implode(',') }}</td>
+					<td>{{ $user->present()->notes() }}</td>
+					<td>{{ $user->present()->tags() }}</td>
 					<td>
 						<a class="btn btn-info"
 							href="{{ route('usuarios.edit' , $user->id) }}">Editar</a>

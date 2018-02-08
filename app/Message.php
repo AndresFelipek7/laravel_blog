@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Presenters\MessagePresenter;
 
 class Message extends Model
 {
@@ -21,5 +22,11 @@ class Message extends Model
 	public function tags()
 	{
 		return $this->morphToMany(Tag::class , 'taggable');
+	}
+
+	public function present()
+	{
+		/*Se crea una nueva instancia de la clase MessagePresenter Para poder acceder a los metodos de la misma, ademas le estamos enviando el objeto $this que es el mensaje a la clase para que puede acceder dentro de ella.*/
+		return new MessagePresenter($this);
 	}
 }

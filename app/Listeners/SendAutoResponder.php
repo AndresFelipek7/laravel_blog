@@ -7,7 +7,7 @@ use App\Events\MessageWasReceived;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class SendAutoResponder
+class SendAutoResponder implements ShouldQueue
 {
 	/**
 	 * Handle the event.
@@ -21,8 +21,8 @@ class SendAutoResponder
 		if (auth()->check()) {
 			$message->email = auth()->user()->email;
 		}
-		/*Mail::send('emails.contact' , ['msg' => $message] , function($m) use ($message) {
+		Mail::send('emails.contact' , ['msg' => $message] , function($m) use ($message) {
 			$m->to($message->email, $message->nombre)->subject('Tu mensaje ha sifo recibo Exitosamente');
-		});*/
+		});
 	}
 }

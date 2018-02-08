@@ -21,27 +21,15 @@
 				<tr>
 					<td>{{ $message->id }}</td>
 
-					@if ($message->user_id)
-						<td>
-							<a href="{{ route('usuarios.show' , $message->user_id) }}">
-								{{ $message->user->name }}
-							</a>
-						</td>
-						<td>{{ $message->user->email }}</td>
-					@else
-						<td> {{ $message->nombre }} </td>
-						<td> {{ $message->email }} </td>
-					@endif
+					<td>{{  $message->present()->userName() }}</td>
 
-					<td>
-						<a href="{{ route('mensaje.show' , $message->id) }}">
-							{{ $message->mensaje }}
-						</a>
-					</td>
+					<td>{{ $message->present()->userEmail() }}</td>
 
-					<td>{{ $message->note ? $message->note->body : 'No hay Notas' }}</td>
+					<td>{{ $message->present()->link() }}</td>
 
-					<td>{{ $message->tags ? $message->tags->pluck('name')->implode(',') : 'No hay Etiquetas' }}</td>
+					<td>{{ $message->present()->notes() }}</td>
+
+					<td>{{ $message->Present()->tags() }}</td>
 
 					<td>
 						<a href="{{ route('mensaje.edit' , $message->id) }}" class="btn btn-info">Editar</a>

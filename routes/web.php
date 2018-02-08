@@ -1,5 +1,10 @@
 <?php
 
+Route::get('job',function(){
+	dispatch(new App\Jobs\SendEmail);
+	return "Listo!!";
+});
+
 /*Para conocer las consultas hechas en una pagina*/
 
 DB::listen(function($query){

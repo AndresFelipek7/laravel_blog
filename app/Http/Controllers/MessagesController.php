@@ -2,26 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use DB;
-use Mail;
 use App\Message;
-use Carbon\Carbon;
-use App\Http\Requests;
 use Illuminate\Http\Request;
 use App\Events\MessageWasReceived;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 use App\Http\Requests\CreateMessageRequest;
-use App\User;
+use App\Repositories\MessagesInterface;
 
 class MessagesController extends Controller
 {
+	protected $messages;
 
 	//Esto es un constructor donde dentro podemos colocar lo que va ha afectar a todos los metodos por defecto a no ser que nosotros le dijamos que no lo haga
-	function __construct()
+	function __construct(MessagesInterface $messages)
 	{
 		//Estamos llamado a un middleware para evitar que por medio de la url sin autentificarse puedan acceder a un menu que solo esta visible cuando inicia sesion , ademas le pasamos como segundo arametro un arreglo que puede ser en espe caso que es except lo que significca que el valor que le colocamos es otro arreglo colcoando los nombre de los metodos que queremos que no mire el middleware
 		$this->middleware('auth' , ['except' => ['create' , 'store']]);
+		//Llamamos a una propiedad para que pueda ser utilizada en todo el controlador
+		$this->messages = $messages;
 	}
 
 	/**
@@ -31,15 +29,8 @@ class MessagesController extends Controller
 	 */
 	public function index()
 	{
-		$key ="messages.page." .request('page',1);
+		$messages = $this->messages->getPaginated();
 
-		$messages = Cache::rememberForever($key , function(){
-			return Message::with(['user' , 'note' , 'tags'])
-						->orderBy('created_at', request('sorted'))
-						->Paginate(10);
-		});
-
-		//Redirecionamos
 		return view('messages.index' , compact('messages'));
 	}
 
@@ -50,7 +41,6 @@ class MessagesController extends Controller
 	 */
 	public function create()
 	{
-		//Redirecionamos
 		return view('messages.create');
 	}
 
@@ -62,16 +52,7 @@ class MessagesController extends Controller
 	 */
 	public function store(Request $request)
 	{
-		//Guardamos el mensaje con el metodo create
-		$message = Message::create($request->all());
-
-		//Si esta autentificado haz esto
-		if (auth()->check()) {
-			//Con el metodo save asignamos el mensaje ya guardado a la relacion
-			auth()->user()->messages()->save($message);
-		}
-
-		Cache::flush();
+		$message = $this->messages->store($request);
 
 		//Llamamos al evento que envia el correo
 		event(new MessageWasReceived($message));
@@ -88,10 +69,7 @@ class MessagesController extends Controller
 	 */
 	public function show($id)
 	{
-		$message = Cache::rememberForever("messages.{$id}" , function () use ($id){
-			return Message::findOrFail($id);
-		});
-
+		$message =$this->messages->findById($id);
 
 		//Redireccionamos
 		return view('messages.show' , compact('message'));
@@ -105,9 +83,7 @@ class MessagesController extends Controller
 	 */
 	public function edit($id)
 	{
-		$message = Cache::rememberForever("messages.{$id}" , function () use ($id){
-			return Message::findOrFail($id);
-		});
+		$message =$this->messages->findById($id);
 
 		//Redirecciomaos
 		return view('messages.edit' , compact('message'));
@@ -122,11 +98,7 @@ class MessagesController extends Controller
 	 */
 	public function update(Request $request, $id)
 	{
-		Message::findOrFail($id)->update($request->all());
-
-		Cache::flush();
-
-		//Redireccionamos
+		$this->messages->update($request, $id);
 
 		return redirect()->route('mensaje.index');
 	}
@@ -139,13 +111,8 @@ class MessagesController extends Controller
 	 */
 	public function destroy($id)
 	{
-		Message::findOrFail($id)->delete();
-
-		Cache::flush();
-
-		//Redireccionamos
+		$this->messages->destroy($id);
 
 		return redirect()->route('mensaje.index');
-
 	}
 }

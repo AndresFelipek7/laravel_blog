@@ -7,7 +7,7 @@ use App\Events\MessageWasReceived;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class SendNotificationToTheOwner
+class SendNotificationToTheOwner implements ShouldQueue
 {
 	/**
 	 * Handle the event.
@@ -18,10 +18,10 @@ class SendNotificationToTheOwner
 	public function handle(MessageWasReceived $event)
 	{
 		$message = $event->message;
-		/*Mail::send('emails.notification_owner' , ['msg' => $message] , function($m) use ($message) {
+		Mail::send('emails.notification_owner' , ['msg' => $message] , function($m) use ($message) {
 			$m->from($message->email, $message->nombre)
 				->to('andres@gmail.com','Andres')
 				->subject('Tu mensaje ha sifo recibo Exitosamente');
-		});*/
+		});
 	}
 }
